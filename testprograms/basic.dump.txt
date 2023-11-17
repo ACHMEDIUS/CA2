@@ -1,0 +1,19 @@
+
+basic.bin:     file format elf32-or1k
+
+
+Disassembly of section .text:
+
+00010000 <_start>:
+   10000:	9c 20 00 26 	l.addi r1,r0,38
+   10004:	9c 41 00 04 	l.addi r2,r1,4
+   10008:	9c 61 ff 0b 	l.addi r3,r1,-245
+   1000c:	e0 82 08 02 	l.sub r4,r2,r1
+   10010:	15 00 00 00 	l.nop 0x0
+   10014:	15 00 00 00 	l.nop 0x0
+   10018:	15 00 00 00 	l.nop 0x0
+   1001c:	15 00 00 00 	l.nop 0x0
+   10020:	15 00 00 00 	l.nop 0x0
+   10024:	15 00 00 00 	l.nop 0x0
+   10028:	15 00 00 00 	l.nop 0x0
+   1002c:	40 ff cc ff 	*unknown*
