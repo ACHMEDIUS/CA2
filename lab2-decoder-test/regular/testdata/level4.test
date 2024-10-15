@@ -1,0 +1,17 @@
+-X testdata/level4-instrs.txt
+0x00001197	auipc r3, 1
+0x00010197	auipc r3, 16
+0x00400f17	auipc r30, 1024
+0x0a4000ef	jal r1, 164
+0x7f10006f	jal r0, 4080
+0xfedf10ef	jal r1, -57364
+0x00008067	jalr r0, 0(r1)
+0x00071c63	bne r14, r0, $24
+0x00051463	bne r10, r0, $8
+0xfc0f1ee3	bne r30, r0, $-36
+0x0007c703	lbu r14, 0(r15)
+0x40004f03	lbu r30, 1024(r0)
+0xff0a4683	lbu r13, -16(r20)
+0x26a027a3	sw r10, 623(r0)
+0x400f2023	sw r0, 1024(r30)
+0x81edaa23	sw r30, -2028(r27)

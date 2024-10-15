@@ -1,0 +1,13 @@
+-X testdata/level2-instrs.txt
+0x00b50023	sb r11, 0(r10)
+0x00010823	sb r0, 16(r2)
+0x40b50023	sb r11, 1024(r10)
+0xd7bf0523	sb r27, -662(r30)
+0x000016b7	lui r13, 1
+0x000105b7	lui r11, 16
+0x10000d37	lui r26, 65536
+0x234fff37	lui r30, 144639
+0x0006b583	ld r11, 0(r13)
+0x40053883	ld r17, 1024(r10)
+0xff06b503	ld r10, -16(r13)
+0xe00f3d83	ld r27, -512(r30)

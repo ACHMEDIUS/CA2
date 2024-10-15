@@ -1,0 +1,15 @@
+-X testdata/level1-instrs.txt
+0x02600093	addi r1, r0, $38
+0x40000493	addi r9, r0, $1024
+0x06300a93	addi r21, r0, $99
+0x00408113	addi r2, r1, $4
+0xf0b48193	addi r3, r9, $-245
+0x07ba8213	addi r4, r21, $123
+0xffb28f13	addi r30, r5, $-5
+0x40110233	sub r4, r2, r1
+0x403100b3	sub r1, r2, r3
+0x41ce8f33	sub r30, r29, r28
+0x004082b3	add r5, r1, r4
+0x000800b3	add r1, r16, r0
+0x01ce8f33	add r30, r29, r28
+0x00000013	addi r0, r0, $0

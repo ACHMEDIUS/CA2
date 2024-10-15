@@ -1,0 +1,13 @@
+-X testdata/level3-instrs.txt
+0x0016869b	addiw r13, r13, $1
+0x4d20009b	addiw r1, r0, $1234
+0xf15e0f1b	addiw r30, r28, $-235
+0x7fff821b	addiw r4, r31, $2047
+0x0020c863	blt r1, r2, $16
+0x00d6c863	blt r13, r13, $16
+0xffe0c4e3	blt r1, r30, $-24
+0xffc0c6e3	blt r1, r28, $-20
+0x00d6d263	bge r13, r13, $4
+0xfed6dee3	bge r13, r13, $-4
+0x004f5063	bge r30, r4, $0
+0xfcc25ae3	bge r4, r12, $-44
