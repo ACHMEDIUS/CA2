@@ -29,12 +29,41 @@ ALU::getResult()
       case ALUOp::NOP:
         break;
 
-      /* TODO: implement necessary operations */
+      case ALUOp::ADD:
+        result = A + B;
+        break;
+
+      case ALUOp::SUB:
+        result = A - B;
+        break;
+
+      case ALUOp::AND:
+        result = A & B;
+        break;
+
+      case ALUOp::OR:
+        result = A | B;
+        break;
+
+      case ALUOp::XOR:
+        result = A ^ B;
+        break;
+
+      case ALUOp::SLL:
+        result = A << (B & 0x3F);  
+        break;
+
+      case ALUOp::SRL:
+        result = static_cast<uint64_t>(A) >> (B & 0x3F);  
+        break;
+
+      case ALUOp::SRA:
+        result = static_cast<int64_t>(A) >> (B & 0x3F);  
+        break;
 
       default:
         throw IllegalInstruction("Unimplemented or unknown ALU operation");
     }
-
 
   return result;
 }

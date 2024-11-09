@@ -17,8 +17,14 @@
 
 enum class ALUOp {
     NOP,
-
-    /* TODO: add other operations as necessary */
+    ADD,
+    SUB,
+    AND,
+    OR,
+    XOR,
+    SLL,
+    SRL,   
+    SRA    
 };
 
 

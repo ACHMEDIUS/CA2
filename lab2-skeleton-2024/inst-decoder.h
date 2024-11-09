@@ -12,44 +12,59 @@
 
 #include <stdexcept>
 #include <cstdint>
+#include <iostream>
 
-
-/* TODO: add enums and constants necessary for your instruction decoder. */
-
+/* Enum for opcode types */
+enum class Opcode : uint8_t
+{
+  LUI = 0b0110111,
+  AUIPC = 0b0010111,
+  JAL = 0b1101111,
+  JALR = 0b1100111,
+  BRANCH = 0b1100011,
+  LOAD = 0b0000011,
+  STORE = 0b0100011,
+  IMM = 0b0010011,
+  REG = 0b0110011,
+  MISC = 0b0001111,
+  SYSTEM = 0b1110011
+};
 
 /* Exception that should be thrown when an illegal instruction
  * is encountered.
  */
 class IllegalInstruction : public std::runtime_error
 {
-  public:
-    explicit IllegalInstruction(const std::string &what)
+public:
+  explicit IllegalInstruction(const std::string &what)
       : std::runtime_error(what)
-    { }
+  {
+  }
 
-    explicit IllegalInstruction(const char *what)
+  explicit IllegalInstruction(const char *what)
       : std::runtime_error(what)
-    { }
+  {
+  }
 };
-
 
 /* InstructionDecoder component to be used by class Processor */
 class InstructionDecoder
 {
-  public:
-    void                setInstructionWord(const uint32_t instructionWord);
-    uint32_t            getInstructionWord() const;
+public:
+  void setInstructionWord(const uint32_t instructionWord);
+  uint32_t getInstructionWord() const;
 
-    RegNumber           getRS1() const;
-    RegNumber           getRS2() const;
-    RegNumber           getRD() const;
+  RegNumber getRS1() const;
+  RegNumber getRS2() const;
+  RegNumber getRD() const;
 
-    /* TODO: probably want methods to get opcode, function code */
+  Opcode getOpcode() const;
+  uint32_t getFunct3() const;
+  uint32_t getFunct7() const;
+  int32_t getImmediate() const;
 
-    /* TODO: need a method to obtain the immediate */
-
-  private:
-    uint32_t instructionWord;
+private:
+  uint32_t instructionWord;
 };
 
 std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder);
