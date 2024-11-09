@@ -51,17 +51,16 @@ struct FSizes
 class IllegalInstruction : public std::runtime_error
 {
 public:
-  explicit IllegalInstruction(const std::string& what)
-    : std::runtime_error(what)
+  explicit IllegalInstruction(const std::string &what)
+      : std::runtime_error(what)
   {
   }
 
-  explicit IllegalInstruction(const char* what)
-    : std::runtime_error(what)
+  explicit IllegalInstruction(const char *what)
+      : std::runtime_error(what)
   {
   }
 };
-
 
 /* InstructionDecoder component to be used by class Processor */
 class InstructionDecoder
@@ -82,20 +81,20 @@ public:
 
   RegValue GetImmediate(FImmediateProperties immediateProperties) const;
 
+  uint32_t GetOpcode() const;
+  RegNumber GetA() const;
+  RegNumber GetB() const;
+  RegNumber GetD() const;
 
 private:
   uint32_t InstructionWord_;
   FSizes SizeInstructionParts_;
   FOffsets OffsetInstructionParts_;
 
-  uint32_t GetOpcode() const;
   uint32_t GetOpcode2() const;
   uint32_t GetOpcode3() const;
   uint32_t GetOpcodeD() const;
   uint32_t GetOpcodeF() const;
-  RegNumber GetA() const;
-  RegNumber GetB() const;
-  RegNumber GetD() const;
 
   /**
    * @brief Base function in the instruction factory pattern.
@@ -149,7 +148,6 @@ private:
   */
   InstructionBase JTypeFactory(const uint32_t opcode) const;
 
-
   /**
    * @return The computed immediate over (possibly) multiple fields sign extended to 32 bits.
    * @param immediateProperties The properties of the immediate of the instruction.
@@ -161,10 +159,8 @@ private:
    * @param immediateProperties The properties of the immediate of the instruction.
    */
   RegValue GetImmediateZeroExtended(FImmediateProperties immediateProperties) const;
-  
 };
 
-
-std::ostream& operator<<(std::ostream& os, const InstructionDecoder& decoder);
+std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder);
 
 #endif /* __INST_DECODER_H__ */

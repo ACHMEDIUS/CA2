@@ -6,20 +6,31 @@
  */
 
 #include "inst-decoder.h"
-
-#include <functional>
-#include <map>
 #include <iostream>
-
 
 std::ostream &
 operator<<(std::ostream &os, const InstructionDecoder &decoder)
 {
-  /* TODO: write a textual representation of the decoded instruction
-   * in "decoder" to the output stream "os". Do not include a newline.
-   * And remove the statement below.
-   */
-  os << "not implemented";
+  uint32_t instructionWord = decoder.GetInstructionWord();
+
+  // Print the raw instruction word in hexadecimal format
+  os << "Instruction: 0x" << std::hex << instructionWord;
+
+  try {
+    // Print opcode and basic instruction fields, ensuring only public methods are used
+    os << " | Opcode: 0x" << std::hex << decoder.GetOpcode();
+
+    // Print relevant registers if accessible
+    os << " | DReg: x" << static_cast<int>(decoder.GetD());
+    os << " | AReg: x" << static_cast<int>(decoder.GetA());
+    os << " | BReg: x" << static_cast<int>(decoder.GetB());
+
+    // Print immediate value if applicable (using public access methods)
+    os << " | Immediate: 0x" << std::hex << decoder.GetImmediate(FImmediateProperties());
+  } catch (const IllegalInstruction &e) {
+    // Handle cases where the instruction is not valid
+    os << " | [Illegal Instruction: " << e.what() << "]";
+  }
 
   return os;
 }
