@@ -75,7 +75,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
             default:
                 throw IllegalInstruction("Unknown funct3 for R-type instruction");
             }
-            operands << "x" << rd << ", x" << rs1 << ", x" << rs2;
+            operands << "x" << static_cast<int>(rd) << ", x" << static_cast<int>(rs1) << ", x" << static_cast<int>(rs2);
             break;
 
         case 0b0010011: // I-type instructions
@@ -112,7 +112,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
             default:
                 throw IllegalInstruction("Unknown funct3 for I-type instruction");
             }
-            operands << "x" << rd << ", x" << rs1 << ", " << imm;
+            operands << "x" << static_cast<int>(rd) << ", x" << static_cast<int>(rs1) << ", " << static_cast<int>(imm);
             break;
         }
 
@@ -145,7 +145,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
             default:
                 throw IllegalInstruction("Unknown funct3 for load instruction");
             }
-            operands << "x" << rd << ", " << imm << "(x" << rs1 << ")";
+            operands << "x" << static_cast<int>(rd) << ", " << static_cast<int>(imm) << "(x" << static_cast<int>(rs1) << ")";
             break;
         }
 
@@ -169,7 +169,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
             default:
                 throw IllegalInstruction("Unknown funct3 for store instruction");
             }
-            operands << "x" << rs2 << ", " << imm << "(x" << rs1 << ")";
+            operands << "x" << static_cast<int>(rs2) << ", " << static_cast<int>(imm) << "(x" << static_cast<int>(rs1) << ")";
             break;
         }
 
@@ -199,7 +199,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
             default:
                 throw IllegalInstruction("Unknown funct3 for branch instruction");
             }
-            operands << "x" << rs1 << ", x" << rs2 << ", " << imm;
+            operands << "x" << static_cast<int>(rs1) << ", x" << static_cast<int>(rs2) << ", " << static_cast<int>(imm);
             break;
         }
 
@@ -215,7 +215,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
         {
             int32_t imm = decoder.getImmediate();
             mnemonic = "jalr";
-            operands << "x" << rd << ", " << imm << "(x" << rs1 << ")";
+            operands << "x" << static_cast<int>(rd) << ", " << static_cast<int>(imm) << "(x" << static_cast<int>(rs1) << ")";
             break;
         }
 
@@ -223,7 +223,7 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
         {
             int32_t imm = decoder.getImmediate();
             mnemonic = "lui";
-            operands << "x" << rd << ", " << imm;
+            operands << "x" << static_cast<int>(rd) << ", " << static_cast<int>(imm);
             break;
         }
 
@@ -231,18 +231,11 @@ std::ostream &operator<<(std::ostream &os, const InstructionDecoder &decoder)
         {
             int32_t imm = decoder.getImmediate();
             mnemonic = "auipc";
-            operands << "x" << rd << ", " << imm;
+            operands << "x" << static_cast<int>(rd) << ", " << static_cast<int>(imm);
             break;
         }
 
-        case 0b0001111: // FENCE and FENCE.I
-        {
-            mnemonic = "fence"; // Simplified; actual instruction may vary
-            operands << "";
-            break;
-        }
-
-        case 0b1110011: // SYSTEM instructions (e.g., ECALL, EBREAK)
+        case 0b1110011: 
             if (funct3 == 0x0)
             {
                 int32_t imm = decoder.getImmediate();
