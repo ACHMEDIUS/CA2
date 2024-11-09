@@ -6,6 +6,9 @@
  */
 
 #include "pipeline.h"
+#include "alu.h"
+
+ALU alu;
 
 
 Pipeline::Pipeline(bool pipelining,
@@ -28,8 +31,9 @@ Pipeline::Pipeline(bool pipelining,
                                                                nInstrIssued,
                                                                nStalls,
                                                                debugMode));
+  // Pass the ALU instance as the fourth argument
   stages.emplace_back(std::make_unique<ExecuteStage>(pipelining,
-                                                     id_ex, ex_m));
+                                                     id_ex, ex_m, alu));
   stages.emplace_back(std::make_unique<MemoryStage>(pipelining,
                                                     ex_m, m_wb,
                                                     dataMemory));
