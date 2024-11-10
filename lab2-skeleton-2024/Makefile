@@ -4,73 +4,96 @@
 # Copyright (C) 2016,2019  Leiden University, The Netherlands.
 #
 
+# Compiler
 CXX = c++
 
-CXXFLAGS = -std=c++17 -Wall -Weffc++ -g -Og
-LDFLAGS = -lstdc++fs
+# Compiler flags:
+# - std=c++17: Use C++17 standard
+# - Wall: Enable all warnings
+# - Weffc++: Enable warnings about violations of the C++ Core Guidelines
+# - g: Include debugging information
+# - Og: Optimize for debugging
+# - -Iinclude: Add 'include/' to the list of directories to search for header files
+CXXFLAGS = -std=c++17 -Wall -Weffc++ -g -Og -Iinclude
 
-OBJECTS = \
-	alu.o \
-	config-file.o \
-	elf-file.o \
-	inst-decoder.o \
-	inst-formatter.o \
-	main.o \
-	memory.o \
-	memory-bus.o \
-	memory-control.o \
-	pipeline.o \
-	processor.o \
-	serial.o \
-	stages.o \
-	sys-status.o \
-	testing.o
+# Linker flags:
+# - Removed '-lstdc++fs' as it's unnecessary for modern compilers (GCC 9+, Clang 7+)
+LDFLAGS =
 
-OBJECTS_FB = framebuffer.o
+# Directories
+SRC_DIR = src
+INC_DIR = include
+OBJ_DIR = obj
 
-HEADERS = \
-	alu.h \
-	arch.h \
-	config-file.h \
-	elf-file.h \
-	inst-decoder.h \
-	memory.h \
-	memory-bus.h \
-	memory-control.h \
-	memory-interface.h \
-	mux.h \
-	pipeline.h \
-	processor.h \
-	reg-file.h \
-	serial.h \
-	stages.h \
-	sys-status.h \
-	testing.h
+# Source files in 'src/' directory
+SOURCES = \
+	$(SRC_DIR)/alu.cc \
+	$(SRC_DIR)/config-file.cc \
+	$(SRC_DIR)/csc.cc \
+	$(SRC_DIR)/elf-file.cc \
+	$(SRC_DIR)/inst-decoder.cc \
+	$(SRC_DIR)/inst-formatter.cc \
+	$(SRC_DIR)/memory.cc \
+	$(SRC_DIR)/memory-bus.cc \
+	$(SRC_DIR)/memory-control.cc \
+	$(SRC_DIR)/pipeline.cc \
+	$(SRC_DIR)/processor.cc \
+	$(SRC_DIR)/serial.cc \
+	$(SRC_DIR)/stages.cc \
+	$(SRC_DIR)/sys-status.cc \
+	$(SRC_DIR)/testing.cc
 
-HEADERS_FB = framebuffer.h
+# Object files corresponding to source files
+OBJECTS = $(patsubst $(SRC_DIR)/%.cc, $(OBJ_DIR)/%.o, $(SOURCES))
 
+# Object file for 'main.cc' located in project root
+MAIN_OBJECT = $(OBJ_DIR)/main.o
 
+# All object files
+ALL_OBJECTS = $(OBJECTS) $(MAIN_OBJECT)
+
+# Additional object and header files for framebuffer support
+OBJECTS_FB = $(OBJ_DIR)/framebuffer.o
+HEADERS_FB = $(INC_DIR)/framebuffer.h
+
+# All header files in 'include/' directory
+HEADERS = $(wildcard $(INC_DIR)/*.h)
+
+# Conditional compilation for framebuffer support
 ifdef ENABLE_FRAMEBUFFER
 OBJECTS += $(OBJECTS_FB)
 HEADERS += $(HEADERS_FB)
 
-# For when the SDL2 package was installed normally
-CXXFLAGS += -DENABLE_FRAMEBUFFER `pkg-config --cflags sdl2`
-LDFLAGS  +=`pkg-config --libs sdl2`
+# Compiler and linker flags for SDL2 when framebuffer is enabled
+CXXFLAGS += -DENABLE_FRAMEBUFFER $(shell pkg-config --cflags sdl2)
+LDFLAGS  += $(shell pkg-config --libs sdl2)
 endif
 
+# Default target: build the emulator executable
+all: $(OBJ_DIR) rv64-emu
 
-all:    	rv64-emu
+# Rule to create the 'obj/' directory if it doesn't exist
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-rv64-emu:	$(OBJECTS)
-		$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
+# Rule to link object files into the final executable
+rv64-emu: $(ALL_OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $(ALL_OBJECTS) $(LDFLAGS)
 
-%.o:		%.cc $(HEADERS)
-		$(CXX) $(CXXFLAGS) -c $<
+# Pattern rule to compile '.cc' files in 'src/' into '.o' files in 'obj/'
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc $(HEADERS) | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Rule to compile 'main.cc' from project root into 'obj/main.o'
+$(MAIN_OBJECT): main.cc $(HEADERS) | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c main.cc -o $(MAIN_OBJECT)
+
+# Clean target: remove the executable and all object files
 clean:
-		rm -f rv64-emu
-		rm -f $(OBJECTS) $(OBJECTS_FB)
+	rm -f rv64-emu
+	rm -f $(ALL_OBJECTS)
+	rm -rf $(OBJ_DIR)
 
-check:		rv64-emu
-		./test_instructions.py
+# Check target: build the emulator and run tests
+check: rv64-emu
+	./test_instructions.py
