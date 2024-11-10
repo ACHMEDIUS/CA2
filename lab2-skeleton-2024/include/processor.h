@@ -40,6 +40,7 @@ class Processor
 
     /* Components shared by multiple stages or components. */
     RegisterFile regfile{};
+    bool flag{};
     InstructionDecoder decoder{};
 
     MemoryBus bus;

@@ -17,7 +17,8 @@ Pipeline::Pipeline(bool pipelining, bool debugMode, MemAddress &PC,
                    InstructionMemory &instructionMemory,
                    InstructionDecoder &decoder, RegisterFile &regfile,
                    bool &flag, DataMemory &dataMemory)
-    : pipelining{pipelining} {
+    : pipelining{pipelining}
+{
   /* TODO: this might need modification in case the stages need access
    * to more shared components.
    */
@@ -34,22 +35,30 @@ Pipeline::Pipeline(bool pipelining, bool debugMode, MemAddress &PC,
       pipelining, m_wb, regfile, flag, nInstrCompleted, wbMux));
 }
 
-void Pipeline::propagate() {
-  if (!pipelining) {
+void Pipeline::propagate()
+{
+  if (!pipelining)
+  {
     /* Execute a single instruction execution step. */
     stages[currentStage]->propagate();
-  } else {
+  }
+  else
+  {
     /* Run propagate for all stages within a single clock cycle. */
     for (auto &s : stages)
       s->propagate();
   }
 }
 
-void Pipeline::clockPulse() {
-  if (!pipelining) {
+void Pipeline::clockPulse()
+{
+  if (!pipelining)
+  {
     stages[currentStage]->clockPulse();
     currentStage = (currentStage + 1) % stages.size();
-  } else {
+  }
+  else
+  {
     for (auto &s : stages)
       s->clockPulse();
   }
