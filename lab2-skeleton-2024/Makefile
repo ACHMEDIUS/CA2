@@ -1,24 +1,9 @@
-#
-# rv64-emu -- Simple 64-bit RISC-V simulator
-#
-# Copyright (C) 2016,2019  Leiden University, The Netherlands.
-#
-
 # Compiler
 CXX = c++
-
-# Compiler flags:
-# - std=c++17: Use C++17 standard
-# - Wall: Enable all warnings
-# - Weffc++: Enable warnings about violations of the C++ Core Guidelines
-# - g: Include debugging information
-# - Og: Optimize for debugging
-# - -Iinclude: Add 'include/' to the list of directories to search for header files
 CXXFLAGS = -std=c++17 -Wall -Weffc++ -g -Og -Iinclude
 
 # Linker flags:
-# - Removed '-lstdc++fs' as it's unnecessary for modern compilers (GCC 9+, Clang 7+)
-LDFLAGS =
+LDFLAGS = -lstdc++fs
 
 # Directories
 SRC_DIR = src
@@ -29,8 +14,8 @@ OBJ_DIR = obj
 SOURCES = \
 	$(SRC_DIR)/alu.cc \
 	$(SRC_DIR)/config-file.cc \
-	$(SRC_DIR)/csc.cc \
 	$(SRC_DIR)/elf-file.cc \
+	$(SRC_DIR)/helper.cc \
 	$(SRC_DIR)/inst-decoder.cc \
 	$(SRC_DIR)/inst-formatter.cc \
 	$(SRC_DIR)/memory.cc \
@@ -59,7 +44,6 @@ HEADERS_FB = $(INC_DIR)/framebuffer.h
 # All header files in 'include/' directory
 HEADERS = $(wildcard $(INC_DIR)/*.h)
 
-# Conditional compilation for framebuffer support
 ifdef ENABLE_FRAMEBUFFER
 OBJECTS += $(OBJECTS_FB)
 HEADERS += $(HEADERS_FB)
@@ -69,14 +53,12 @@ CXXFLAGS += -DENABLE_FRAMEBUFFER $(shell pkg-config --cflags sdl2)
 LDFLAGS  += $(shell pkg-config --libs sdl2)
 endif
 
-# Default target: build the emulator executable
 all: $(OBJ_DIR) rv64-emu
 
 # Rule to create the 'obj/' directory if it doesn't exist
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-# Rule to link object files into the final executable
 rv64-emu: $(ALL_OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $(ALL_OBJECTS) $(LDFLAGS)
 
@@ -88,12 +70,10 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc $(HEADERS) | $(OBJ_DIR)
 $(MAIN_OBJECT): main.cc $(HEADERS) | $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c main.cc -o $(MAIN_OBJECT)
 
-# Clean target: remove the executable and all object files
 clean:
 	rm -f rv64-emu
 	rm -f $(ALL_OBJECTS)
 	rm -rf $(OBJ_DIR)
 
-# Check target: build the emulator and run tests
 check: rv64-emu
 	./test_instructions.py

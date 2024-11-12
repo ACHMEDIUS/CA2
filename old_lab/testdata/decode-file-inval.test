@@ -1,2 +1,0 @@
-./rv64-emu -X testdata/dummy
-Error: 'testdata/dummy' does not exist or is a directory.
