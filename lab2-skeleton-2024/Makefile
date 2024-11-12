@@ -14,8 +14,8 @@ OBJ_DIR = obj
 SOURCES = \
 	$(SRC_DIR)/alu.cc \
 	$(SRC_DIR)/config-file.cc \
+	$(SRC_DIR)/control-signal-controller.cc \
 	$(SRC_DIR)/elf-file.cc \
-	$(SRC_DIR)/helper.cc \
 	$(SRC_DIR)/inst-decoder.cc \
 	$(SRC_DIR)/inst-formatter.cc \
 	$(SRC_DIR)/memory.cc \

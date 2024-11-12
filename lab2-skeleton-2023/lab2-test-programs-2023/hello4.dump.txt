@@ -1,0 +1,58 @@
+
+hello4.bin:     file format elf32-or1k
+
+
+Disassembly of section .text:
+
+00010000 <main>:
+   10000:	aa 20 02 00 	l.ori r17,r0,0x200
+   10004:	aa 60 00 68 	l.ori r19,r0,0x68
+   10008:	d8 11 98 00 	l.sb 0(r17),r19
+   1000c:	aa 60 00 65 	l.ori r19,r0,0x65
+   10010:	d8 11 98 00 	l.sb 0(r17),r19
+   10014:	aa 60 00 6c 	l.ori r19,r0,0x6c
+   10018:	d8 11 98 00 	l.sb 0(r17),r19
+   1001c:	d8 11 98 00 	l.sb 0(r17),r19
+   10020:	aa 60 00 6f 	l.ori r19,r0,0x6f
+   10024:	d8 11 98 00 	l.sb 0(r17),r19
+   10028:	aa 60 00 0a 	l.ori r19,r0,0xa
+   1002c:	d8 11 98 00 	l.sb 0(r17),r19
+   10030:	44 00 48 00 	l.jr r9
+   10034:	19 60 00 00 	l.movhi r11,0x0
+
+00010038 <_start>:
+   10038:	18 20 00 01 	l.movhi r1,0x1
+   1003c:	a8 21 30 50 	l.ori r1,r1,0x3050
+   10040:	9c 41 00 00 	l.addi r2,r1,0
+   10044:	07 ff ff ef 	l.jal 10000 <main>
+   10048:	15 00 00 00 	l.nop 0x0
+   1004c:	9c 60 02 78 	l.addi r3,r0,632
+   10050:	d4 03 58 00 	l.sw 0(r3),r11
+   10054:	15 00 00 00 	l.nop 0x0
+   10058:	15 00 00 00 	l.nop 0x0
+   1005c:	15 00 00 00 	l.nop 0x0
+   10060:	15 00 00 00 	l.nop 0x0
+   10064:	15 00 00 00 	l.nop 0x0
+   10068:	15 00 00 00 	l.nop 0x0
+   1006c:	15 00 00 00 	l.nop 0x0
+
+Disassembly of section .bss:
+
+00012070 <_stack>:
+	...
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	47 43 43 3a 	*unknown*
+   4:	20 28 47 4e 	*unknown*
+   8:	55 29 20 31 	*unknown*
+   c:	32 2e 30 2e 	*unknown*
+  10:	31 20 32 30 	*unknown*
+  14:	32 32 30 32 	*unknown*
+  18:	31 30 20 28 	*unknown*
+  1c:	65 78 70 65 	*unknown*
+  20:	72 69 6d 65 	*unknown*
+  24:	6e 74 61 6c 	l.lwa r19,24940(r20)
+  28:	Address 0x0000000000000028 is out of bounds.
+

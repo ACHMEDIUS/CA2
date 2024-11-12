@@ -13,31 +13,14 @@
 
 #include <map>
 
-enum class ALUOp
-{
-  NOP,
-  ADD,
-  SUB,
-  AND,
-  OR,
-  XOR,
-  JUMP,
-  SLL,
-  SRL,
-  SRA,
-  SB,
-  SW,
-  SDW,
-  LB,
-  LW,
-  LDW,
-  GE,
-  NE,
-  LT,
-  LE,
-  EQ,
-  GT
+
+
+enum class ALUOp {
+    NOP,
+
+    /* TODO: add other operations as necessary */
 };
+
 
 /* The ALU component performs the specified operation on operands A and B
  * when asked to propagate the result. The operation is specified through
@@ -45,36 +28,21 @@ enum class ALUOp
  */
 class ALU
 {
-public:
-  ALU();
+  public:
+    ALU();
 
-  void setA(RegValue A) { this->A = A; }
-  void setB(RegValue B) { this->B = B; }
+    void setA(RegValue A) { this->A = A; }
+    void setB(RegValue B) { this->B = B; }
 
-  RegValue getResult();
+    RegValue getResult();
 
-  void setOp(ALUOp op) { this->op = op; }
+    void setOp(ALUOp op) { this->op = op; }
 
-private:
-  RegValue ADD(); // Addition (A + B)
-  RegValue SUB(); // Subtraction (A - B)
-  RegValue AND(); // Bitwise AND (A & B)
-  RegValue OR();  // Bitwise OR (A | B)
-  RegValue XOR(); // Bitwise XOR (A ^ B)
-  RegValue SLL(); // Left shift (A << B)
-  RegValue SRL(); // Right shift (A >> B)
-  RegValue SRA(); // Right shift arithmetic (A >> B)
-  RegValue GE();  // Branch if greater than or equal to (A >= B)
-  RegValue NE();  // Branch if not equal (A != B)
-  RegValue LT();  // Branch if less than (A < B)
-  RegValue LE();  // Branch if less than or equal to (A <= B)
-  RegValue EQ();  // Branch if equal (A == B)
-  RegValue GT();  // Branch if greater than (A > B)
+  private:
+    RegValue A;
+    RegValue B;
 
-  RegValue A;
-  RegValue B;
-
-  ALUOp op;
+    ALUOp op;
 };
 
 #endif /* __ALU_H__ */

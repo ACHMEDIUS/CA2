@@ -26,4 +26,5 @@ static constexpr size_t MaxRegs = 256;
  */
 static constexpr uint32_t TestEndMarker = 0xddffccff;
 
+
 #endif /* __ARCH_H__ */

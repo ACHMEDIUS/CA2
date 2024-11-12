@@ -8,52 +8,65 @@
 #ifndef __PIPELINE_H__
 #define __PIPELINE_H__
 
-#include "csc.h"
 #include "stages.h"
 
 #include "memory-control.h"
 
-class Pipeline {
-public:
-  Pipeline(bool pipelining, bool debugMode, MemAddress &PC,
-           InstructionMemory &instructionMemory, InstructionDecoder &decoder,
-           RegisterFile &regfile, bool &flag, DataMemory &dataMemory);
+class Pipeline
+{
+  public:
+    Pipeline(bool pipelining,
+             bool debugMode,
+             MemAddress &PC,
+             InstructionMemory &instructionMemory,
+             InstructionDecoder &decoder,
+             RegisterFile &regfile,
+             DataMemory &dataMemory);
 
-  Pipeline(const Pipeline &) = delete;
-  Pipeline &operator=(const Pipeline &) = delete;
+    Pipeline(const Pipeline &) = delete;
+    Pipeline &operator=(const Pipeline &) = delete;
 
-  void propagate();
-  void clockPulse();
+    void propagate();
+    void clockPulse();
 
-  bool getPipelining() const { return pipelining; }
+    bool getPipelining() const
+    {
+      return pipelining;
+    }
 
-  uint64_t getInstrIssued() const { return nInstrIssued; }
+    uint64_t getInstrIssued() const
+    {
+      return nInstrIssued;
+    }
 
-  uint64_t getInstrCompleted() const { return nInstrCompleted; }
+    uint64_t getInstrCompleted() const
+    {
+      return nInstrCompleted;
+    }
 
-  uint64_t getStalls() const { return nStalls; }
+    uint64_t getStalls() const
+    {
+      return nStalls;
+    }
 
-private:
-  bool pipelining;
-  size_t currentStage{};
+  private:
+    bool pipelining;
+    size_t currentStage{};
 
-  /* Statistics */
-  uint64_t nInstrIssued{};
-  uint64_t nInstrCompleted{};
-  uint64_t nStalls{};
+    /* Statistics */
+    uint64_t nInstrIssued{};
+    uint64_t nInstrCompleted{};
+    uint64_t nStalls{};
 
-  /* Stages */
-  std::vector<std::unique_ptr<Stage>> stages{};
+    /* Stages */
+    std::vector<std::unique_ptr<Stage>> stages{};
 
-  /* Pipeline registers */
-  IF_IDRegisters if_id{};
-  ID_EXRegisters id_ex{};
-  EX_MRegisters ex_m{};
-  M_WBRegisters m_wb{};
-
-  /* Shared components */
-  CSC csc{};
-  Mux<RegValue, Input> wbMux{};
-  Mux<MemAddress, Input> pcMux{};
+    /* Pipeline registers */
+    IF_IDRegisters if_id{};
+    ID_EXRegisters id_ex{};
+    EX_MRegisters  ex_m{};
+    M_WBRegisters  m_wb{};
 };
+
+
 #endif /* __PIPELINE_H__ */

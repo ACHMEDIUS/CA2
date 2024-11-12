@@ -9,14 +9,11 @@
 #define __STAGES_H__
 
 #include "alu.h"
-#include "csc.h"
+#include "mux.h"
 #include "inst-decoder.h"
 #include "memory-control.h"
-#include "mux.h"
 
-class Pipeline;
 
-enum class Input { FIRST, SECOND, LAST };
 
 /* Pipeline registers may be read during propagate and may only be
  * written during clockPulse. Note that you cannot read the incoming
@@ -25,236 +22,243 @@ enum class Input { FIRST, SECOND, LAST };
  * In case you need to propagate values from one pipeline register to
  * the next, these need to be buffered explicitly within the stage.
  */
-struct IF_IDRegisters {
+struct IF_IDRegisters
+{
   MemAddress PC = 0;
 
   /* TODO: add necessary fields */
-  RegValue instructionWord{};
 };
 
-struct ID_EXRegisters {
+struct ID_EXRegisters
+{
   MemAddress PC{};
 
   /* TODO: add necessary fields */
-  ALUOp aluOp{};
-  RegValue A{};
-  RegValue B{};
-  RegValue imm{};
-  RegNumber D{};
-  RegValue valueToWrite;
 };
 
-struct EX_MRegisters {
+struct EX_MRegisters
+{
   MemAddress PC{};
 
   /* TODO: add necessary fields */
-  RegValue aluRes{};
-  ALUOp aluOp{};
-  RegNumber rd{};
-  RegValue valueToWrite{};
 };
 
-struct M_WBRegisters {
+struct M_WBRegisters
+{
   MemAddress PC{};
 
   /* TODO: add necessary fields */
-  RegValue aluRes{};
-  ALUOp aluOp{};
-  RegNumber rd{};
-  RegValue dataFromMemory{};
 };
+
 
 /*
  * Abstract base class for pipeline stage
  */
 
-class Stage {
-public:
-  Stage(bool pipelining) : pipelining(pipelining) {}
+class Stage
+{
+  public:
+    Stage(bool pipelining)
+      : pipelining(pipelining)
+    { }
 
-  virtual ~Stage() {}
+    virtual ~Stage()
+    { }
 
-  virtual void propagate() = 0;
-  virtual void clockPulse() = 0;
+    virtual void propagate() = 0;
+    virtual void clockPulse() = 0;
 
-protected:
-  bool pipelining;
+  protected:
+    bool pipelining;
 };
+
 
 /*
  * Instruction fetch
  */
 
-class InstructionFetchFailure : public std::exception {
-public:
-  explicit InstructionFetchFailure(const MemAddress addr) {
-    std::stringstream ss;
-    ss << "Instruction fetch failed at address " << std::hex << addr;
-    message = ss.str();
-  }
+class InstructionFetchFailure : public std::exception
+{
+  public:
+    explicit InstructionFetchFailure(const MemAddress addr)
+    {
+      std::stringstream ss;
+      ss << "Instruction fetch failed at address " << std::hex << addr;
+      message = ss.str();
+    }
 
-  const char *what() const noexcept override { return message.c_str(); }
+    const char* what() const noexcept override
+    {
+      return message.c_str();
+    }
 
-private:
-  std::string message{};
+  private:
+    std::string message{};
 };
 
-class TestEndMarkerEncountered : public std::exception {
-public:
-  explicit TestEndMarkerEncountered(const MemAddress addr) {
-    std::stringstream ss;
-    ss << "Test end marker encountered at address " << std::hex << addr;
-    message = ss.str();
-  }
+class TestEndMarkerEncountered : public std::exception
+{
+  public:
+    explicit TestEndMarkerEncountered(const MemAddress addr)
+    {
+      std::stringstream ss;
+      ss << "Test end marker encountered at address " << std::hex << addr;
+      message = ss.str();
+    }
 
-  const char *what() const noexcept override { return message.c_str(); }
+    const char* what() const noexcept override
+    {
+      return message.c_str();
+    }
 
-private:
-  std::string message{};
+  private:
+    std::string message{};
 };
 
-class InstructionFetchStage : public Stage {
-public:
-  InstructionFetchStage(bool pipelining, IF_IDRegisters &if_id,
-                        InstructionMemory instructionMemory, MemAddress &PC,
-                        Mux<MemAddress, Input> &pcMux)
-      : Stage(pipelining), if_id(if_id), instructionMemory(instructionMemory),
-        PC(PC), pcMux(pcMux) {}
 
-  void propagate() override;
-  void clockPulse() override;
+class InstructionFetchStage : public Stage
+{
+  public:
+    InstructionFetchStage(bool pipelining,
+                          IF_IDRegisters &if_id,
+                          InstructionMemory instructionMemory,
+                          MemAddress &PC)
+      : Stage(pipelining),
+      if_id(if_id), instructionMemory(instructionMemory),
+      PC(PC)
+    { }
 
-private:
-  IF_IDRegisters &if_id;
+    void propagate() override;
+    void clockPulse() override;
 
-  InstructionMemory instructionMemory;
-  MemAddress &PC;
+  private:
+    IF_IDRegisters &if_id;
 
-  //
-  RegValue instructionWord{};
-  Mux<MemAddress, Input> &pcMux;
+    InstructionMemory instructionMemory;
+    MemAddress &PC;
 };
 
 /*
  * Instruction decode
  */
 
-class InstructionDecodeStage : public Stage {
-public:
-  InstructionDecodeStage(bool pipelining, const IF_IDRegisters &if_id,
-                         ID_EXRegisters &id_ex, RegisterFile &regfile,
-                         InstructionDecoder &decoder, uint64_t &nInstrIssued,
-                         uint64_t &nStalls, CSC csc,
-                         Mux<MemAddress, Input> &pcMux, bool &flag,
-                         bool debugMode = false)
-      : Stage(pipelining), if_id(if_id), id_ex(id_ex), regfile(regfile),
-        decoder(decoder), nInstrIssued(nInstrIssued), nStalls(nStalls),
-        debugMode(debugMode), csc(csc), pcMux(pcMux), flag(flag) {}
+class InstructionDecodeStage : public Stage
+{
+  public:
+    InstructionDecodeStage(bool pipelining,
+                           const IF_IDRegisters &if_id,
+                           ID_EXRegisters &id_ex,
+                           RegisterFile &regfile,
+                           InstructionDecoder &decoder,
+                           uint64_t &nInstrIssued,
+                           uint64_t &nStalls,
+                           bool debugMode = false)
+      : Stage(pipelining),
+      if_id(if_id), id_ex(id_ex),
+      regfile(regfile), decoder(decoder),
+      nInstrIssued(nInstrIssued), nStalls(nStalls),
+      debugMode(debugMode)
+    { }
 
-  void propagate() override;
-  void clockPulse() override;
+    void propagate() override;
+    void clockPulse() override;
 
-private:
-  const IF_IDRegisters &if_id;
-  ID_EXRegisters &id_ex;
+  private:
+    const IF_IDRegisters &if_id;
+    ID_EXRegisters &id_ex;
 
-  RegisterFile &regfile;
-  InstructionDecoder &decoder;
+    RegisterFile &regfile;
+    InstructionDecoder &decoder;
 
-  uint64_t &nInstrIssued;
-  uint64_t &nStalls;
+    uint64_t &nInstrIssued;
+    uint64_t &nStalls;
 
-  bool debugMode;
+    bool debugMode;
 
-  MemAddress PC{};
-
-  /* TODO: add other necessary fields/buffers. */
-  CSC csc;
-  Mux<MemAddress, Input> &pcMux;
-  bool &flag;
+    MemAddress PC{};
+    /* TODO: add other necessary fields/buffers. */
 };
 
 /*
  * Execute
  */
 
-class ExecuteStage : public Stage {
-public:
-  ExecuteStage(bool pipelining, const ID_EXRegisters &id_ex,
-               EX_MRegisters &ex_m)
-      : Stage(pipelining), id_ex(id_ex), ex_m(ex_m) {}
+class ExecuteStage : public Stage
+{
+  public:
+    ExecuteStage(bool pipelining,
+                 const ID_EXRegisters &id_ex,
+                 EX_MRegisters &ex_m)
+      : Stage(pipelining),
+      id_ex(id_ex), ex_m(ex_m)
+    { }
 
-  void propagate() override;
-  void clockPulse() override;
+    void propagate() override;
+    void clockPulse() override;
 
-private:
-  const ID_EXRegisters &id_ex;
-  EX_MRegisters &ex_m;
+  private:
+    const ID_EXRegisters &id_ex;
+    EX_MRegisters &ex_m;
 
-  MemAddress PC{};
-  /* TODO: add other necessary fields/buffers and components (ALU anyone?) */
-  ALU alu{};
-  ALUOp aluOp{};
-  RegNumber rd{};
-  RegValue valueToWrite{};
+    MemAddress PC{};
+    /* TODO: add other necessary fields/buffers and components (ALU anyone?) */
 };
 
 /*
  * Memory
  */
 
-class MemoryStage : public Stage {
-public:
-  MemoryStage(bool pipelining, const EX_MRegisters &ex_m, M_WBRegisters &m_wb,
-              DataMemory dataMemory, Mux<MemAddress, Input> &pcMux)
-      : Stage(pipelining), ex_m(ex_m), m_wb(m_wb), dataMemory(dataMemory),
-        pcMux(pcMux) {}
+class MemoryStage : public Stage
+{
+  public:
+    MemoryStage(bool pipelining,
+                const EX_MRegisters &ex_m,
+                M_WBRegisters &m_wb,
+                DataMemory dataMemory)
+      : Stage(pipelining),
+      ex_m(ex_m), m_wb(m_wb), dataMemory(dataMemory)
+    { }
 
-  void propagate() override;
-  void clockPulse() override;
+    void propagate() override;
+    void clockPulse() override;
 
-private:
-  const EX_MRegisters &ex_m;
-  M_WBRegisters &m_wb;
+  private:
+    const EX_MRegisters &ex_m;
+    M_WBRegisters &m_wb;
 
-  DataMemory dataMemory;
+    DataMemory dataMemory;
 
-  MemAddress PC{};
-  /* TODO: add other necessary fields/buffers */
-  RegValue aluRes{};
-  ALUOp aluOp{};
-  RegNumber rd{};
-  Mux<MemAddress, Input> &pcMux;
+    MemAddress PC{};
+    /* TODO: add other necessary fields/buffers */
 };
 
 /*
  * Write back
  */
 
-class WriteBackStage : public Stage {
-public:
-  WriteBackStage(bool pipelining, const M_WBRegisters &m_wb,
-                 RegisterFile &regfile, bool &flag, uint64_t &nInstrCompleted,
-                 Mux<RegValue, Input> &wbMux)
-      : Stage(pipelining), m_wb(m_wb), regfile(regfile), flag(flag),
-        nInstrCompleted(nInstrCompleted), wbMux(wbMux) {}
+class WriteBackStage : public Stage
+{
+  public:
+    WriteBackStage(bool pipelining,
+                   const M_WBRegisters &m_wb,
+                   RegisterFile &regfile,
+                   uint64_t &nInstrCompleted)
+      : Stage(pipelining),
+      m_wb(m_wb), regfile(regfile),
+      nInstrCompleted(nInstrCompleted)
+    { }
 
-  void propagate() override;
-  void clockPulse() override;
+    void propagate() override;
+    void clockPulse() override;
 
-private:
-  const M_WBRegisters &m_wb;
+  private:
+    const M_WBRegisters &m_wb;
 
-  RegisterFile &regfile;
-  bool &flag;
+    RegisterFile &regfile;
 
-  /* TODO add other necessary fields/buffers and components */
+    /* TODO add other necessary fields/buffers and components */
 
-  uint64_t &nInstrCompleted;
-  RegValue aluRes{};
-  ALUOp aluOp{};
-  RegNumber rd{};
-  Mux<RegValue, Input> &wbMux;
+    uint64_t &nInstrCompleted;
 };
 
 #endif /* __STAGES_H__ */
