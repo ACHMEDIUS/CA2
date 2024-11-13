@@ -20,8 +20,8 @@ Pipeline::Pipeline(bool pipelining, bool debugMode, MemAddress &PC,
     : pipelining{pipelining} {
   /* TODO: this might need modification in case the stages need access
    * to more shared components.
-   */
 
+   */
   stages.emplace_back(std::make_unique<InstructionFetchStage>(
       pipelining, if_id, instructionMemory, PC, pcMux));
   stages.emplace_back(std::make_unique<InstructionDecodeStage>(
