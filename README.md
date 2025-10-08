@@ -1,58 +1,193 @@
-# rv64-emu
+# rv64-emu - RISC-V 64-bit Processor Emulator
 
-An emulation framework centered around the classic 5-stage RISC pipeline.
+A classic 5-stage pipelined RISC-V processor emulator implementing the RV64I instruction set.
 
+## Features
 
-## Building
+- Full RV64I base instruction set support
+- Classic 5-stage pipeline (IF → ID → EX → MEM → WB)
+- Non-pipelined and pipelined execution modes
+- Hazard detection and data forwarding
+- Instruction decoder and disassembler
+- Memory-mapped I/O (serial output, system status)
+- Comprehensive test suite with multiple difficulty levels
 
-The minimum g++ release that is supported is version 8. Recent versions of
-clang should also work. To build simply run `make`.
+## Quick Start
 
-To specify the compiler to use, for example to force `g++-8`, use
-`make CXX=g++-8`.
+### Prerequisites
 
+- **C++ Compiler:** g++ 8.3+ or clang++ with C++ 17 support
+- **Python:** 3.12 or higher
+- **uv:** RUST based Python package manager
+- **make:** Build system
+- **clang-format:** C++ code formatter (optional but recommended)
 
-## Usage
+### Installation
 
-The program can be used as a simple disassembler for the implemented
-architecture using the `-x` and `-X` options:
+```bash
+# 1. Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-    ./rv64-emu -x 0x13
+# 2. Install project dependencies
+uv sync
 
-or
+# 3. Build the emulator
+uv run build
+```
 
-    ./rv64-emu -X ./testdata/decode-testfile.txt
+### Running the Emulator
 
-The `-X` option also supports ELF files: `-X ./tests/add.bin`.
+```bash
+# Disassemble a single instruction
+./src/rv64-emu -x 0x00000013
 
-To execute programs, simply specify the ELF file to run as command-line
-argument:
+# Disassemble a file
+./src/rv64-emu -X src/testdata/decode-testfile.txt
 
-    ./rv64-emu test-programs/hello.bin
+# Run a program (non-pipelined)
+./src/rv64-emu tests/lab2-test-programs/basic.bin
 
-If `-d` is added prior to the ELF filename, the instructions that are
-executed will be printed to the terminal. This is useful for debugging.
-The `-t` mode can be used with unit tests, in this case the command-line
-argument should specify a `.conf` file:
+# Run with pipelining enabled
+./src/rv64-emu -p tests/lab2-test-programs/basic.bin
 
-    ./rv64-emu -t ./tests/add.conf
+# Debug mode (show decoded instructions)
+./src/rv64-emu -d tests/lab2-test-programs/basic.bin
 
-By default, the emulator runs in non-pipelined mode. To enable pipelining,
-add the `-p` command-line argument before any filename.
+# Run a unit test
+./src/rv64-emu -t src/tests/add.conf
+```
 
+## Development Workflow
 
-## Testing
+This project uses `uv` for all development tasks:
 
-The `make check` command runs all the unit tests. Essentially, this executes
-the `test_instructions.py` and `test_output.py` scripts.
-`test_instructions.py` simply runs all `.conf` unit tests found in the
-`tests/` subdirectory. When the `-p` command-line argument is added, the
-emulator is run in pipelined mode.
+### Building
 
-`test_output.py` runs all `.test` files found in `testdata/`. The first line
-of a ` .test` file specifies a command to execute. The output of this
-command is then compared to the output included in the `.test` file. If the
-output matches, the test passes. A different test directory can be specified
-using the `-C` option followed by a path to a directory.
+```bash
+uv run build       # Compile the emulator
+uv run clean       # Clean build artifacts
+```
 
+### Testing
 
+```bash
+uv run test                # Run all unit tests
+uv run test --verbose      # Verbose test output
+uv run test --pipeline     # Test with pipelining enabled
+uv run test --fail         # Stop on first failure
+uv run test-output         # Run output conformance tests
+```
+
+### Code Formatting
+
+```bash
+uv run format-cpp          # Format C++ source files
+uv run format-python       # Format Python scripts
+uv run format              # Format all files (C++ + Python)
+```
+
+### Linting
+
+```bash
+uv run lint-python         # Lint Python files with ruff
+```
+
+### Creating Submissions
+
+```bash
+uv run deliver 2a          # Create Part A submission tarball
+uv run deliver 2b          # Create Part B submission tarball
+```
+
+The script will interactively prompt for student IDs and create a properly named tarball in `deliverables/`.
+
+## Project Structure
+
+```
+rv64-emu/
+├── src/                      # Core emulator source code
+│   ├── *.cc, *.h            # C++ implementation files
+│   ├── tests/               # Unit test .conf files
+│   ├── testdata/            # Decoder test data
+│   ├── Makefile             # Build system
+│   ├── test_instructions.py # Unit test runner
+│   └── test_output.py       # Output test runner
+├── tests/                   # Conformance test binaries (levels 1-10)
+├── scripts/                 # Python automation scripts
+├── deliverables/            # Generated submission tarballs (gitignored)
+├── .claude/                 # Claude Code context for development
+├── pyproject.toml           # Python project config + uv scripts
+├── .clang-format            # C++ formatting rules
+├── .editorconfig            # Editor configuration
+└── README.md                # This file
+```
+
+## Command-Line Options
+
+```
+Usage: rv64-emu [OPTIONS] [FILE]
+
+Options:
+  -x INSTRUCTION     Decode and print a single instruction (hex)
+  -X FILE            Decode and print instructions from file
+  -t CONF_FILE       Run unit test from .conf file
+  -d                 Debug mode (show decoded instructions during execution)
+  -p                 Enable pipelining
+  -h                 Show help message
+```
+
+## Conformance Test Levels
+
+The emulator is tested against 10 difficulty levels:
+
+| Level | Test Program | Requirements |
+|-------|-------------|--------------|
+| 1 | basic.bin | Basic arithmetic (no pipelining) |
+| 2 | simple.bin | Simple program (no pipelining) |
+| 3 | msg.bin | String operations (no pipelining) |
+| 4 | triangle.bin | Complex logic (no pipelining) |
+| 5 | hellof.bin | Function calls (no pipelining) |
+| 6 | comp.bin | Comprehensive test (no pipelining) |
+| 7 | (modified programs) | Pipelining with manual stalls |
+| 8 | (all programs) | Hazard detection + auto stalls |
+| 9 | brainfck.bin | Brainfuck interpreter (pipelined) |
+| 10 | (all programs) | Data forwarding (reduced cycles) |
+
+## Architecture
+
+### Pipeline Stages
+
+1. **IF (Instruction Fetch):** Fetch instruction from memory at PC
+2. **ID (Instruction Decode):** Decode instruction, read registers
+3. **EX (Execute):** Perform ALU operations
+4. **MEM (Memory):** Load/store data memory operations
+5. **WB (Writeback):** Write results to register file
+
+### Components
+
+- **InstructionMemory:** Program code storage (read-only)
+- **DataMemory:** Data storage (read/write)
+- **RegisterFile:** 32 × 64-bit registers (x0-x31)
+- **ALU:** Arithmetic/logic operations
+- **InstructionDecoder:** Extract instruction fields
+- **InstructionFormatter:** Disassemble to assembly text
+- **Pipeline Registers:** IF_ID, ID_EX, EX_MEM, MEM_WB
+
+## Academic Integrity Notice
+
+This project is part of an academic assignment. If you are a student:
+- You **must** implement the core emulator logic yourself
+- Using this repository's tooling/infrastructure is allowed
+- Copying implementation code from others violates academic integrity policies
+
+## License
+
+See [LICENSE](LICENSE) for details.
+
+## Resources
+
+- **RISC-V ISA Manual:** https://riscv.org/technical/specifications/
+- **Course Textbook:** Hennessy & Patterson "Computer Architecture: A Quantitative Approach"
+  - Appendix A: ISA principles
+  - Appendix C: Classic RISC pipeline
+- **Skeleton Overview:** `src/overview.pdf`
