@@ -1,4 +1,4 @@
-# rv64-emu - RISC-V 64-bit Processor Emulator
+RISC-V 64-bit Processor Emulator
 
 A classic 5-stage pipelined RISC-V processor emulator implementing the RV64I instruction set.
 
